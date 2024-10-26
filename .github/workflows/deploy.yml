@@ -32,27 +32,28 @@ jobs:
         LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
         LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
       run: |
-        # Print some debug info (sanitized)
-        echo "Setting up SSH with host: ${LIGHTSAIL_HOST}"
-        echo "Using username: ${LIGHTSAIL_USERNAME}"
+        # Display debug info (safely)
+        echo "Setting up SSH connection..."
+        echo "Host: $LIGHTSAIL_HOST"
+        echo "Username: $LIGHTSAIL_USERNAME"
         
-        # Create .ssh directory with correct permissions
+        # Setup SSH directory
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
         
-        # Write private key to file
-        echo "$AWS_PRIVATE_KEY" > ~/.ssh/lightsail.pem
+        # Create and check key file
+        echo "$AWS_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/lightsail.pem
         chmod 600 ~/.ssh/lightsail.pem
         
-        # Debug key file
+        # Verify key file content (safely)
+        echo "Key file permissions:"
         ls -la ~/.ssh/lightsail.pem
         
-        # Add host key with verbose output
-        ssh-keyscan -v -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts 2>&1
-        chmod 644 ~/.ssh/known_hosts
+        # Add host to known_hosts
+        ssh-keyscan -t rsa $LIGHTSAIL_HOST >> ~/.ssh/known_hosts
         
-        # Test SSH connection
-        ssh -v -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST "echo 'SSH connection successful'"
+        # Test connection with verbose output
+        ssh -v -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST exit
 
     - name: Deploy to Lightsail
       if: success()
@@ -61,17 +62,5 @@ jobs:
         LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
         LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
       run: |
-        # Create and set permissions for web directory
-        ssh -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST '
-          sudo mkdir -p /var/www/html
-          sudo chown -R $USER:$USER /var/www/html
-        '
-        
-        # Copy build files
+        # Deploy the built files
         scp -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no -r dist/* $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST:/var/www/html/
-        
-        # Set proper permissions
-        ssh -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST '
-          sudo chown -R www-data:www-data /var/www/html
-          sudo chmod -R 755 /var/www/html
-        '
