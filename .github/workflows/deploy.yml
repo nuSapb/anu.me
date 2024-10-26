@@ -1,0 +1,45 @@
+name: Deploy Portfolio
+
+on:
+  push:
+    branches: [ main]
+  pull_request:
+    branches: [ main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up SSH
+        env:
+          AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+          LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$AWS_PRIVATE_KEY" > ~/.ssh/lightsail.pem    
+          chmod 600 ~/.ssh/lightsail.pem
+          ssh-keyscan -H $LIGHTSAIL_HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy to Lightsail
+        env:
+          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+          LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
+        run: |
+          # Create directory if it doesn't exist
+          ssh -i ~/.ssh/lightsail.pem $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
+
+          # Copy build files to server
+          scp -i ~/.ssh/lightsail.pem -r dist/* $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST:/var/www/html
