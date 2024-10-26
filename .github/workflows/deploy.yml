@@ -2,44 +2,76 @@ name: Deploy Portfolio
 
 on:
   push:
-    branches: [ main]
+    branches: [ main ]
   pull_request:
-    branches: [ main]
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
 
-      - name: Set up SSH
-        env:
-          AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
-          LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$AWS_PRIVATE_KEY" > ~/.ssh/lightsail.pem    
-          chmod 600 ~/.ssh/lightsail.pem
-          ssh-keyscan -H $LIGHTSAIL_HOST >> ~/.ssh/known_hosts
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Deploy to Lightsail
-        env:
-          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
-          LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
-        run: |
-          # Create directory if it doesn't exist
-          ssh -i ~/.ssh/lightsail.pem $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
+    - name: Build project
+      run: npm run build
 
-          # Copy build files to server
-          scp -i ~/.ssh/lightsail.pem -r dist/* $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST:/var/www/html
+    - name: Debug SSH setup
+      env:
+        AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+        LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+        LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
+      run: |
+        # Print some debug info (sanitized)
+        echo "Setting up SSH with host: ${LIGHTSAIL_HOST}"
+        echo "Using username: ${LIGHTSAIL_USERNAME}"
+        
+        # Create .ssh directory with correct permissions
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        
+        # Write private key to file
+        echo "$AWS_PRIVATE_KEY" > ~/.ssh/lightsail.pem
+        chmod 600 ~/.ssh/lightsail.pem
+        
+        # Debug key file
+        ls -la ~/.ssh/lightsail.pem
+        
+        # Add host key with verbose output
+        ssh-keyscan -v -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts 2>&1
+        chmod 644 ~/.ssh/known_hosts
+        
+        # Test SSH connection
+        ssh -v -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST "echo 'SSH connection successful'"
+
+    - name: Deploy to Lightsail
+      if: success()
+      env:
+        AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+        LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+        LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
+      run: |
+        # Create and set permissions for web directory
+        ssh -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST '
+          sudo mkdir -p /var/www/html
+          sudo chown -R $USER:$USER /var/www/html
+        '
+        
+        # Copy build files
+        scp -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no -r dist/* $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST:/var/www/html/
+        
+        # Set proper permissions
+        ssh -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST '
+          sudo chown -R www-data:www-data /var/www/html
+          sudo chmod -R 755 /var/www/html
+        '
