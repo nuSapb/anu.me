@@ -1,0 +1,131 @@
+.terminal {
+    width: 80vw;
+    max-width: 1000px;
+    height: 70vh;
+    background-color: #0f3642;
+    border-radius: 8px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .terminal-header {
+    height: 32px;
+    background-color: #1a4b5c;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    position: relative;
+  }
+  
+  .terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  
+  .terminal-button.close {
+    background-color: #ff5f56;
+  }
+  
+  .terminal-button.minimize {
+    background-color: #ffbd2e;
+  }
+  
+  .terminal-button.maximize {
+    background-color: #27c93f;
+  }
+  
+  .terminal-title {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    left: 0;
+    color: #b4c4c6;
+    font-size: 14px;
+    pointer-events: none;
+  }
+  
+  .terminal-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    font-family: 'PT Mono', monospace;
+    background-color: #0f3642;
+    color: #b4c4c6;
+  }
+  
+  .terminal-prompt {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+  }
+  
+  .prompt-symbol {
+    color: #27c93f;
+    margin-right: 8px;
+  }
+  
+  .prompt-path {
+    color: #5ed7ff;
+    margin-right: 8px;
+  }
+  
+  .terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #b4c4c6;
+    font-family: 'PT Mono', monospace;
+    font-size: inherit;
+    outline: none;
+    padding: 0;
+  }
+  
+  .terminal-command {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+  }
+  
+  .command-text {
+    margin-left: 8px;
+  }
+  
+  .terminal-output {
+    padding: 8px 0;
+    white-space: pre-wrap;
+  }
+  
+  .terminal-welcome {
+    color: #5ed7ff;
+    padding: 8px 0;
+    white-space: pre-wrap;
+  }
+  
+  .terminal-error {
+    color: #ff5f56;
+    padding: 8px 0;
+  }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #0f3642;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #1a4b5c;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 768px) {
+    .terminal {
+      width: 95vw;
+      height: 80vh;
+    }
+  }
