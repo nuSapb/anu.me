@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: production  # Add this line to ensure secrets are available
 
     steps:
     - name: Checkout code
@@ -26,34 +27,52 @@ jobs:
     - name: Build project
       run: npm run build
 
+    - name: Verify Secrets
+      run: |
+        if [ -z "${{ secrets.LIGHTSAIL_HOST }}" ]; then
+          echo "Error: LIGHTSAIL_HOST is empty"
+          exit 1
+        fi
+        if [ -z "${{ secrets.LIGHTSAIL_USERNAME }}" ]; then
+          echo "Error: LIGHTSAIL_USERNAME is empty"
+          exit 1
+        fi
+        if [ -z "${{ secrets.AWS_PRIVATE_KEY }}" ]; then
+          echo "Error: AWS_PRIVATE_KEY is empty"
+          exit 1
+        fi
+        echo "All required secrets are present"
+
     - name: Debug SSH setup
       env:
         AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
         LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
         LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
       run: |
-        # Display debug info (safely)
-        echo "Setting up SSH connection..."
-        echo "Host: $LIGHTSAIL_HOST"
-        echo "Username: $LIGHTSAIL_USERNAME"
-        
-        # Setup SSH directory
+        # Create .ssh directory
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
         
-        # Create and check key file
+        # Debug environment variables (masked)
+        echo "Host length: ${#LIGHTSAIL_HOST}"
+        echo "Username length: ${#LIGHTSAIL_USERNAME}"
+        echo "Private key length: ${#AWS_PRIVATE_KEY}"
+        
+        # Write key file
         echo "$AWS_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/lightsail.pem
         chmod 600 ~/.ssh/lightsail.pem
         
-        # Verify key file content (safely)
-        echo "Key file permissions:"
+        # Show key file info
         ls -la ~/.ssh/lightsail.pem
         
-        # Add host to known_hosts
-        ssh-keyscan -t rsa $LIGHTSAIL_HOST >> ~/.ssh/known_hosts
+        # Add host key (with specific host)
+        ssh-keyscan -H "${LIGHTSAIL_HOST}" >> ~/.ssh/known_hosts
         
-        # Test connection with verbose output
-        ssh -v -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST exit
+        # Test SSH connection
+        ssh -i ~/.ssh/lightsail.pem \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST "echo 'SSH connection test'"
 
     - name: Deploy to Lightsail
       if: success()
@@ -63,4 +82,7 @@ jobs:
         LIGHTSAIL_USERNAME: ${{ secrets.LIGHTSAIL_USERNAME }}
       run: |
         # Deploy the built files
-        scp -i ~/.ssh/lightsail.pem -o StrictHostKeyChecking=no -r dist/* $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST:/var/www/html/
+        scp -i ~/.ssh/lightsail.pem \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -r dist/* $LIGHTSAIL_USERNAME@$LIGHTSAIL_HOST:/var/www/html/
