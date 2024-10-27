@@ -90,8 +90,23 @@ Terminal v1.0.0`,
     }
   }, [history]);
 
+  const handleDownloadResume = () => {
+    // Create a URL for your resume file
+    const resumeUrl = '/Anu_Sakpibal_Resume.pdf'; // Make sure to add your resume to the public folder
+    
+    // Create an anchor element and trigger download
+    const link = document.createElement('a');
+    link.href = resumeUrl;
+    link.setAttribute('download', 'Anu_Sakpibal_Resume.pdf');
+    
+    // Fallback for browsers that require the link to be in the DOM
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <Box className="terminal" ref={terminalRef}>
+    <Box className="terminal">
       <Box className="terminal-header">
         <div className="terminal-button close" />
         <div className="terminal-button minimize" />
@@ -99,6 +114,18 @@ Terminal v1.0.0`,
         <div className="terminal-title">anu.me ~ portfolio</div>
       </Box>
       <Box className="terminal-body">
+        {/* Resume Download Banner */}
+        <div className="resume-banner">
+          <span className="resume-text">
+            📄 Looking for a quick overview? Download my resume!
+          </span>
+          <button 
+            className="resume-button"
+            onClick={handleDownloadResume}
+          >
+            ⬇️ Download Resume
+          </button>
+        </div>
         {history.map((entry, index) => (
           <TerminalOutput key={index} entry={entry} />
         ))}

@@ -16,6 +16,15 @@ const TerminalOutput = ({ entry }) => {
                          entry.isWelcome ? 'terminal-welcome' : 
                          'terminal-output';
 
+  if (entry.isHtml) {
+    return (
+      <Box 
+        className={outputClassName}
+        dangerouslySetInnerHTML={{ __html: entry.output }}
+      />
+    );
+  }
+
   return (
     <Box className={outputClassName}>
       {entry.output.split('\n').map((line, i) => (

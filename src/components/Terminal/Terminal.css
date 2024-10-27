@@ -1,131 +1,373 @@
+/* Base terminal container */
 .terminal {
-    width: 80vw;
-    max-width: 1000px;
-    height: 70vh;
-    background-color: #0f3642;
-    border-radius: 8px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
-    overflow: hidden;
-    display: flex;
+  width: 80vw;
+  max-width: 1000px;
+  height: 70vh;
+  background-color: #0f3642;
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Terminal header/title bar */
+.terminal-header {
+  height: 32px;
+  background-color: #1a4b5c;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  position: relative;
+}
+
+.terminal-button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.terminal-button.close {
+  background-color: #ff5f56;
+}
+
+.terminal-button.minimize {
+  background-color: #ffbd2e;
+}
+
+.terminal-button.maximize {
+  background-color: #27c93f;
+}
+
+.terminal-title {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  left: 0;
+  color: #b4c4c6;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* Terminal body/content area */
+.terminal-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  font-family: "PT Mono", monospace;
+  background-color: #0f3642;
+  color: #b4c4c6;
+}
+
+/* Terminal input area */
+.terminal-prompt {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.prompt-symbol {
+  color: #27c93f;
+  margin-right: 8px;
+}
+
+.prompt-path {
+  color: #5ed7ff;
+  margin-right: 8px;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #b4c4c6;
+  font-family: "PT Mono", monospace;
+  font-size: inherit;
+  outline: none;
+  padding: 0;
+}
+
+/* Terminal command display */
+.terminal-command {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.command-text {
+  margin-left: 8px;
+}
+
+/* Terminal output styles */
+.terminal-output {
+  padding: 8px 0;
+  white-space: pre-wrap;
+}
+
+.terminal-welcome {
+  color: #5ed7ff;
+  padding: 8px 0;
+  white-space: pre-wrap;
+}
+
+.terminal-error {
+  color: #ff5f56;
+  padding: 8px 0;
+}
+
+/* Social section styling */
+.social-section {
+  margin: 12px 0;
+}
+
+.social-platform {
+  margin: 16px 0;
+  padding-left: 4px;
+}
+
+.platform-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #5ed7ff;
+  position: relative;
+  overflow: hidden;
+}
+
+.platform-icon {
+  margin-right: 8px;
+  font-size: 1.2em;
+}
+
+.platform-name {
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.platform-content {
+  margin-left: 32px;
+}
+
+.platform-details {
+  color: #8a9ea1;
+  margin: 4px 0;
+  font-size: 0.95em;
+}
+
+/* Platform header animation */
+.platform-header::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: #5ed7ff;
+  transition: width 0.3s ease;
+}
+
+.social-platform:hover .platform-header::after {
+  width: 100%;
+}
+
+/* Link styling */
+.terminal-link {
+  color: #5ed7ff;
+  text-decoration: none;
+  border-bottom: 1px dotted #5ed7ff;
+  padding: 2px 4px;
+  margin: 0;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.terminal-link:hover {
+  color: #ffffff;
+  background: rgba(94, 215, 255, 0.1);
+  border-bottom: 1px solid #ffffff;
+  border-radius: 4px;
+}
+
+.terminal-body a {
+  position: relative;
+  display: inline-block;
+}
+
+.terminal-body a:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(94, 215, 255, 0.3);
+  border-radius: 4px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f3642;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a4b5c;
+  border-radius: 4px;
+}
+
+/* Command output formatting */
+.output-section {
+  margin: 8px 0;
+}
+
+.section-title {
+  color: #5ed7ff;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.section-content {
+  margin-left: 16px;
+}
+
+.list-item {
+  margin: 4px 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.list-bullet {
+  color: #5ed7ff;
+  margin-right: 8px;
+}
+
+/* Help command styling */
+.help-command {
+  display: flex;
+  align-items: flex-start;
+  margin: 4px 0;
+}
+
+.command-name {
+  color: #5ed7ff;
+  min-width: 120px;
+  margin-right: 16px;
+}
+
+.command-description {
+  color: #b4c4c6;
+}
+
+.resume-banner {
+  background: rgba(94, 215, 255, 0.1);
+  border: 1px solid #5ed7ff;
+  border-radius: 4px;
+  margin: 0 0 16px 0;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: glow 2s infinite alternate;
+}
+
+.resume-text {
+  color: #5ed7ff;
+  font-size: 0.95em;
+}
+
+.resume-button {
+  background: #5ed7ff;
+  color: #0f3642;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-family: "PT Mono", monospace;
+  font-size: 0.9em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.resume-button:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(94, 215, 255, 0.3);
+}
+
+.resume-button:active {
+  transform: translateY(0);
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(94, 215, 255, 0.2);
+  }
+  to {
+    box-shadow: 0 0 8px rgba(94, 215, 255, 0.4);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .terminal {
+    width: 95vw;
+    height: 80vh;
+  }
+
+  .platform-content {
+    margin-left: 24px;
+  }
+
+  .platform-details {
+    font-size: 0.9em;
+  }
+
+  .command-name {
+    min-width: 100px;
+  }
+
+  .section-content {
+    margin-left: 12px;
+  }
+
+  .resume-banner {
     flex-direction: column;
-  }
-  
-  .terminal-header {
-    height: 32px;
-    background-color: #1a4b5c;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    position: relative;
-  }
-  
-  .terminal-button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
-  }
-  
-  .terminal-button.close {
-    background-color: #ff5f56;
-  }
-  
-  .terminal-button.minimize {
-    background-color: #ffbd2e;
-  }
-  
-  .terminal-button.maximize {
-    background-color: #27c93f;
-  }
-  
-  .terminal-title {
-    position: absolute;
-    width: 100%;
+    gap: 12px;
     text-align: center;
-    left: 0;
-    color: #b4c4c6;
-    font-size: 14px;
-    pointer-events: none;
   }
-  
-  .terminal-body {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    font-family: 'PT Mono', monospace;
-    background-color: #0f3642;
-    color: #b4c4c6;
+}
+
+/* Dark theme specific colors */
+.dark-theme {
+  --bg-primary: #0f3642;
+  --bg-secondary: #1a4b5c;
+  --text-primary: #b4c4c6;
+  --text-secondary: #8a9ea1;
+  --accent-primary: #5ed7ff;
+  --accent-secondary: #27c93f;
+  --error: #ff5f56;
+  --warning: #ffbd2e;
+  --success: #27c93f;
+}
+
+/* Animations */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
   }
-  
-  .terminal-prompt {
-    display: flex;
-    align-items: center;
-    padding: 4px 0;
+  50% {
+    opacity: 0;
   }
-  
-  .prompt-symbol {
-    color: #27c93f;
-    margin-right: 8px;
-  }
-  
-  .prompt-path {
-    color: #5ed7ff;
-    margin-right: 8px;
-  }
-  
-  .terminal-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: #b4c4c6;
-    font-family: 'PT Mono', monospace;
-    font-size: inherit;
-    outline: none;
-    padding: 0;
-  }
-  
-  .terminal-command {
-    display: flex;
-    align-items: center;
-    padding: 4px 0;
-  }
-  
-  .command-text {
-    margin-left: 8px;
-  }
-  
-  .terminal-output {
-    padding: 8px 0;
-    white-space: pre-wrap;
-  }
-  
-  .terminal-welcome {
-    color: #5ed7ff;
-    padding: 8px 0;
-    white-space: pre-wrap;
-  }
-  
-  .terminal-error {
-    color: #ff5f56;
-    padding: 8px 0;
-  }
-  
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #0f3642;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #1a4b5c;
-    border-radius: 4px;
-  }
-  
-  @media (max-width: 768px) {
-    .terminal {
-      width: 95vw;
-      height: 80vh;
-    }
-  }
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+/* Optional: Smooth transitions */
+.terminal * {
+  transition: color 0.2s ease, background-color 0.2s ease,
+    border-color 0.2s ease;
+}
