@@ -92,21 +92,13 @@ Terminal v1.0.0`,
 
   const handleDownloadResume = () => {
     // Create a URL for your resume file
-    const resumeUrl = '/Anu_Sakpibal_Resume.pdf'; // Make sure to add your resume to the public folder
+    const resumeUrl = 'https://anu-me.s3.ap-southeast-1.amazonaws.com/Anu_Sakpibal_Resume.pdf';
     
-    // Create an anchor element and trigger download
-    const link = document.createElement('a');
-    link.href = resumeUrl;
-    link.setAttribute('download', 'Anu_Sakpibal_Resume.pdf');
-    
-    // Fallback for browsers that require the link to be in the DOM
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(resumeUrl, '_blank');
   };
 
   return (
-    <Box className="terminal">
+     <Box className="terminal">
       <Box className="terminal-header">
         <div className="terminal-button close" />
         <div className="terminal-button minimize" />
@@ -122,8 +114,9 @@ Terminal v1.0.0`,
           <button 
             className="resume-button"
             onClick={handleDownloadResume}
+            aria-label="View Resume"
           >
-            ⬇️ Download Resume
+            📋 View Resume
           </button>
         </div>
         {history.map((entry, index) => (
